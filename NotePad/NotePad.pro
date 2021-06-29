@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += widgets
+QT       += printsupport
 
 CONFIG += c++11
 

@@ -116,6 +116,7 @@ bool MainWindow::initMainEditor()
     connect(&mainEditor, &QPlainTextEdit::copyAvailable, this, &MainWindow::onCopyAvailable);
     connect(&mainEditor, &QPlainTextEdit::redoAvailable, this, &MainWindow::onRedoAvailable);
     connect(&mainEditor, &QPlainTextEdit::undoAvailable, this, &MainWindow::onUndoAvailable);
+    connect(&mainEditor, &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::onCursorPositionChanged);
 
     setCentralWidget(&mainEditor);
 
@@ -169,6 +170,7 @@ bool MainWindow::initFileMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onFilePrint);
             menu->addAction(action);
         }
 
@@ -451,6 +453,7 @@ bool MainWindow::initFileToolItem(QToolBar* tb)
 
     if( ret )
     {
+        connect(action, &QAction::triggered, this, &MainWindow::onFilePrint);
         tb->addAction(action);
     }
 

@@ -14,6 +14,8 @@
 #include <QMenu>
 #include <QToolBar>
 #include <QDebug>
+#include <QPrintDialog>
+#include <QPrinter>
 #include <QMimeData>
 
 void MainWindow::showErrorMessage(QString message)
@@ -351,4 +353,41 @@ QAction* MainWindow::findToolBarAction(QString text)
     }
 
     return ret;
+}
+
+void MainWindow::onFilePrint()
+{
+    QPrinter printer;
+    QPrintDialog dlg(&printer, this);
+
+    dlg.setWindowTitle("Print");
+
+    if( dlg.exec() == QPrintDialog::Accepted )
+    {
+        mainEditor.document()->print(static_cast<QPagedPaintDevice *>(&printer));
+    }
+}
+
+void MainWindow::onCursorPositionChanged()
+{
+    int pos = mainEditor.textCursor().position();
+    QString text = mainEditor.toPlainText();
+    int col = 0;
+    int ln = 0;
+    int flag = -1;
+
+    for(int i=0; i<pos; i++)
+    {
+        if( text[i] == '\n' )
+        {
+            ln++;
+            flag = i;
+        }
+    }
+
+    flag++;
+
+    col = pos - flag;
+
+    statusLbl.setText("Ln: " + QString::number(ln + 1) + "    Col: " + QString::number(col + 1));
 }
