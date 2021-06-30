@@ -403,6 +403,11 @@ void MainWindow::onEditDelete()
     QApplication::sendEvent(&mainEditor, &keyRelease);
 }
 
+void MainWindow::onEditFind()
+{
+    m_pFindDlg->show();
+}
+
 void MainWindow::onFileExit()
 {
     close();

@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QDebug>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() : m_pFindDlg(new FindDialog(this))
 {
     setWindowTitle("NotePad - [ New ]");
     setAcceptDrops(true);
@@ -266,6 +266,7 @@ bool MainWindow::initEditMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onEditFind);
             menu->addAction(action);
         }
 
@@ -516,6 +517,7 @@ bool MainWindow::initEditToolItem(QToolBar* tb)
 
     if( ret )
     {
+        connect(action, &QAction::triggered, this, &MainWindow::onEditFind);
         tb->addAction(action);
     }
 
