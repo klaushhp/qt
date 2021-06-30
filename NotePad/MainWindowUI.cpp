@@ -180,6 +180,7 @@ bool MainWindow::initFileMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onFileExit);
             menu->addAction(action);
         }
     }
@@ -255,6 +256,7 @@ bool MainWindow::initEditMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onEditDelete);
             menu->addAction(action);
         }
 

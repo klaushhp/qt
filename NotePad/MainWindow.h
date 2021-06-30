@@ -59,11 +59,13 @@ private slots:
     void onFileSave();
     void onFileSaveAs();
     void onFilePrint();
+    void onFileExit();
     void onTextChanged();
     void onCopyAvailable(bool available);
     void onRedoAvailable(bool available);
     void onUndoAvailable(bool available);
     void onCursorPositionChanged();
+    void onEditDelete();
 public:
     static MainWindow* NewInstance();
     ~MainWindow();

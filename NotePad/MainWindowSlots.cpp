@@ -16,6 +16,8 @@
 #include <QDebug>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QKeyEvent>
+#include <QApplication>
 #include <QMimeData>
 
 void MainWindow::showErrorMessage(QString message)
@@ -391,3 +393,19 @@ void MainWindow::onCursorPositionChanged()
 
     statusLbl.setText("Ln: " + QString::number(ln + 1) + "    Col: " + QString::number(col + 1));
 }
+
+void MainWindow::onEditDelete()
+{
+    QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Delete, Qt::NoModifier);
+    QKeyEvent keyRelease(QEvent::KeyRelease, Qt::Key_Delete, Qt::NoModifier);
+
+    QApplication::sendEvent(&mainEditor, &keyPress);
+    QApplication::sendEvent(&mainEditor, &keyRelease);
+}
+
+void MainWindow::onFileExit()
+{
+    close();
+}
+
+
