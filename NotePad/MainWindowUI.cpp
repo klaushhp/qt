@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QDebug>
 
-MainWindow::MainWindow() : m_pFindDlg(new FindDialog(this))
+MainWindow::MainWindow() : m_pFindDlg(new FindDialog(this, &mainEditor))
 {
     setWindowTitle("NotePad - [ New ]");
     setAcceptDrops(true);

@@ -10,6 +10,8 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QPlainTextEdit>
+#include <QPointer>
 
 class FindDialog : public QDialog
 {
@@ -29,8 +31,17 @@ protected:
     QRadioButton m_forwardBtn;
     QRadioButton m_backwardBtn;
 
+    QPointer<QPlainTextEdit> m_pText;
+
+    void initControl();
+    void connectSlot();
+protected:
+    void onFindClicked();
+    void onCloseClicked();
 public:
-    explicit FindDialog(QWidget* parent = 0);
+    explicit FindDialog(QWidget* parent = 0, QPlainTextEdit* pText = 0);
+    void setPlainTextEdit(QPlainTextEdit* pText);
+    QPlainTextEdit* getPlainTextEdit();
     bool event(QEvent* evt);
 };
 

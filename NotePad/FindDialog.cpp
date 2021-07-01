@@ -1,7 +1,20 @@
 #include "FindDialog.h"
 #include <QEvent>
+#include <QTextCursor>
+#include <QMessageBox>
+#include <QDebug>
 
-FindDialog::FindDialog(QWidget* parent) : QDialog(parent, Qt::WindowCloseButtonHint | Qt::Drawer)
+FindDialog::FindDialog(QWidget* parent, QPlainTextEdit* pText)
+    : QDialog(parent, Qt::WindowCloseButtonHint | Qt::Drawer)
+{
+    initControl();
+    connectSlot();
+    setLayout(&m_layout);
+    setWindowTitle("Find");
+    setPlainTextEdit(pText);
+}
+
+void FindDialog::initControl()
 {
     m_findLbl.setText("Find What:");
     m_findBtn.setText("Find Next");
@@ -25,8 +38,22 @@ FindDialog::FindDialog(QWidget* parent) : QDialog(parent, Qt::WindowCloseButtonH
     m_layout.addWidget(&m_radioGrpBx, 1, 1);
     m_layout.addWidget(&m_closeBtn, 1, 2);
 
-    setLayout(&m_layout);
-    setWindowTitle("Find");
+}
+
+void FindDialog::connectSlot()
+{
+    connect(&m_findBtn, &QPushButton::clicked, this, &FindDialog::onFindClicked);
+    connect(&m_closeBtn, &QPushButton::clicked, this, &FindDialog::onCloseClicked);
+}
+
+void FindDialog::setPlainTextEdit(QPlainTextEdit *pText)
+{
+    m_pText = pText;
+}
+
+QPlainTextEdit* FindDialog::getPlainTextEdit()
+{
+    return m_pText;
 }
 
 bool FindDialog::event(QEvent *evt)
@@ -39,4 +66,57 @@ bool FindDialog::event(QEvent *evt)
     }
 
     return QDialog::event(evt);
+}
+
+void FindDialog::onFindClicked()
+{
+    QString target = m_findEdit.text();
+
+    if( (m_pText != NULL) && (target != "") )
+    {
+        QString text = m_pText->toPlainText();
+        QTextCursor c = m_pText->textCursor();
+        int index = -1;
+
+        if( m_forwardBtn.isChecked() )
+        {
+            index = text.indexOf(target, c.position(), m_matchChkBx.isChecked()? Qt::CaseSensitive : Qt::CaseInsensitive);
+            if( index >= 0)
+            {
+                c.setPosition(index);
+                c.setPosition(index + target.length(), QTextCursor::KeepAnchor);
+
+                m_pText->setTextCursor(c);
+            }
+        }
+
+        if( m_backwardBtn.isChecked() )
+        {
+           index = text.lastIndexOf(target, c.position() - text.length() -1, m_matchChkBx.isChecked()? Qt::CaseSensitive : Qt::CaseInsensitive);
+           if( index >= 0)
+           {
+               c.setPosition(index + target.length());
+               c.setPosition(index, QTextCursor::KeepAnchor);
+
+               m_pText->setTextCursor(c);
+           }
+        }
+
+        if( index < 0 )
+        {
+            QMessageBox msg(this);
+
+            msg.setWindowTitle("Find");
+            msg.setText("Can not find \"" + target + "\" any more...");
+            msg.setIcon(QMessageBox::Information);
+            msg.setStandardButtons(QMessageBox::Ok);
+
+            msg.exec();
+        }
+    }
+}
+
+void FindDialog::onCloseClicked()
+{
+    close();
 }
