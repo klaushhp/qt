@@ -21,8 +21,8 @@ void FindDialog::initControl()
     m_closeBtn.setText("Close");
     m_matchChkBx.setText("Match Case");
     m_backwardBtn.setText("Backward");
+    m_backwardBtn.setChecked(true);
     m_forwardBtn.setText("Forward");
-    m_forwardBtn.setChecked(true);
     m_radioGrpBx.setTitle("Direction");
 
     m_hbLayout.addWidget(&m_forwardBtn);
@@ -78,7 +78,7 @@ void FindDialog::onFindClicked()
         QTextCursor c = m_pText->textCursor();
         int index = -1;
 
-        if( m_forwardBtn.isChecked() )
+        if( m_backwardBtn.isChecked() )
         {
             index = text.indexOf(target, c.position(), m_matchChkBx.isChecked()? Qt::CaseSensitive : Qt::CaseInsensitive);
             if( index >= 0)
@@ -90,7 +90,7 @@ void FindDialog::onFindClicked()
             }
         }
 
-        if( m_backwardBtn.isChecked() )
+        if( m_forwardBtn.isChecked() )
         {
            index = text.lastIndexOf(target, c.position() - text.length() -1, m_matchChkBx.isChecked()? Qt::CaseSensitive : Qt::CaseInsensitive);
            if( index >= 0)

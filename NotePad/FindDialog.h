@@ -35,7 +35,7 @@ protected:
 
     void initControl();
     void connectSlot();
-protected:
+protected slots:
     void onFindClicked();
     void onCloseClicked();
 public:

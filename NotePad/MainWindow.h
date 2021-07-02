@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QSharedPointer>
 #include "FindDialog.h"
+#include "ReplaceDialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +23,7 @@ private:
     QString m_filePath;
     bool m_isTextChanged;
     QSharedPointer<FindDialog> m_pFindDlg;
+    QSharedPointer<ReplaceDialog> m_pReplaceDlg;
 
     MainWindow();
     MainWindow(const MainWindow&);
@@ -69,6 +71,7 @@ private slots:
     void onUndoAvailable(bool available);
     void onCursorPositionChanged();
     void onEditFind();
+    void onEditReplace();
     void onEditDelete();
 public:
     static MainWindow* NewInstance();

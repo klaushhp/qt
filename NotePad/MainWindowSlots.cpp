@@ -408,6 +408,11 @@ void MainWindow::onEditFind()
     m_pFindDlg->show();
 }
 
+void MainWindow::onEditReplace()
+{
+    m_pReplaceDlg->show();
+}
+
 void MainWindow::onFileExit()
 {
     close();
