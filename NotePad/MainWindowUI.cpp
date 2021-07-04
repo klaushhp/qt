@@ -4,6 +4,7 @@
 #include <QSize>
 #include <QStatusBar>
 #include <QLabel>
+#include <QPalette>
 #include <QDebug>
 
 MainWindow::MainWindow()
@@ -34,11 +35,38 @@ MainWindow* MainWindow::NewInstance()
 bool MainWindow::construct()
 {
     bool ret = true;
+    AppConfig config;
 
     ret = ret && initMenuBar();
     ret = ret && initToolBar();
     ret = ret && initStatusBar();
     ret = ret && initMainEditor();
+
+    if( config )
+    {
+        mainEditor.setFont(config.editorFont());
+
+        if( !config.isAutoWrap() )
+        {
+            mainEditor.setLineWrapMode(QPlainTextEdit::NoWrap);
+            findMenuBarAction("Auto Wrap")->setChecked(false);
+            findToolBarAction("Auto Wrap")->setChecked(false);
+        }
+
+        if( !config.isToolBarVisible() )
+        {
+            toolBar()->setVisible(false);
+            findMenuBarAction("Tool Bar")->setChecked(false);
+            findToolBarAction("Tool Bar")->setChecked(false);
+        }
+
+        if( !config.isStatusBarVisible() )
+        {
+            statusBar()->setVisible(false);
+            findMenuBarAction("Status Bar")->setChecked(false);
+            findToolBarAction("Status Bar")->setChecked(false);
+        }
+    }
 
     return ret;
 }
@@ -111,7 +139,12 @@ bool MainWindow::initStatusBar()
 bool MainWindow::initMainEditor()
 {
     bool ret = true;
+    QPalette p = mainEditor.palette();
 
+    p.setColor(QPalette::Inactive, QPalette::Highlight, p.color(QPalette::Active, QPalette::Highlight));
+    p.setColor(QPalette::Inactive, QPalette::HighlightedText, p.color(QPalette::Active, QPalette::HighlightedText));
+
+    mainEditor.setPalette(p);
     mainEditor.setParent(this);
 
     connect(&mainEditor, &QPlainTextEdit::textChanged, this, &MainWindow::onTextChanged);
@@ -284,6 +317,7 @@ bool MainWindow::initEditMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onEditGoto);
             menu->addAction(action);
         }
 
@@ -323,6 +357,9 @@ bool MainWindow::initFormatMenu(QMenuBar* mb)
 
         if( ret )
         {
+            action->setCheckable(true);
+            action->setChecked(true);
+            connect(action, &QAction::triggered, this, &MainWindow::onFormatWrap);
             menu->addAction(action);
         }
 
@@ -330,6 +367,7 @@ bool MainWindow::initFormatMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onFormatFont);
             menu->addAction(action);
         }
     }
@@ -359,6 +397,9 @@ bool MainWindow::initViewMenu(QMenuBar* mb)
 
         if( ret )
         {
+            action->setCheckable(true);
+            action->setChecked(true);
+            connect(action, &QAction::triggered, this, &MainWindow::onViewToolBar);
             menu->addAction(action);
         }
 
@@ -366,6 +407,9 @@ bool MainWindow::initViewMenu(QMenuBar* mb)
 
         if( ret )
         {
+            action->setCheckable(true);
+            action->setChecked(true);
+            connect(action, &QAction::triggered, this, &MainWindow::onViewStatusBar);
             menu->addAction(action);
         }
     }
@@ -395,6 +439,7 @@ bool MainWindow::initHelpMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onHelpManual);
             menu->addAction(action);
         }
 
@@ -402,6 +447,7 @@ bool MainWindow::initHelpMenu(QMenuBar* mb)
 
         if( ret )
         {
+            connect(action, &QAction::triggered, this, &MainWindow::onHelpAbout);
             menu->addAction(action);
         }
     }
@@ -536,6 +582,7 @@ bool MainWindow::initEditToolItem(QToolBar* tb)
 
     if( ret )
     {
+        connect(action, &QAction::triggered, this, &MainWindow::onEditGoto);
         tb->addAction(action);
     }
 
@@ -551,6 +598,9 @@ bool MainWindow::initFormatToolItem(QToolBar* tb)
 
     if( ret )
     {
+        action->setCheckable(true);
+        action->setChecked(true);
+        connect(action, &QAction::triggered, this, &MainWindow::onFormatWrap);
         tb->addAction(action);
     }
 
@@ -558,6 +608,7 @@ bool MainWindow::initFormatToolItem(QToolBar* tb)
 
     if( ret )
     {
+        connect(action, &QAction::triggered, this, &MainWindow::onFormatFont);
         tb->addAction(action);
     }
 
@@ -573,6 +624,9 @@ bool MainWindow::initViewToolItem(QToolBar* tb)
 
     if( ret )
     {
+        action->setCheckable(true);
+        action->setChecked(true);
+        connect(action, &QAction::triggered, this, &MainWindow::onViewToolBar);
         tb->addAction(action);
     }
 
@@ -580,6 +634,9 @@ bool MainWindow::initViewToolItem(QToolBar* tb)
 
     if( ret )
     {
+        action->setCheckable(true);
+        action->setChecked(true);
+        connect(action, &QAction::triggered, this, &MainWindow::onViewStatusBar);
         tb->addAction(action);
     }
 
@@ -623,7 +680,32 @@ bool MainWindow::makeAction(QAction*& action, QWidget* parent, QString tip, QStr
     return ret;
 }
 
+QToolBar* MainWindow::toolBar()
+{
+    QToolBar* ret = nullptr;
+    const QObjectList& list = children();
+
+    for(int i=0; i<list.count(); i++)
+    {
+        QToolBar* tb = dynamic_cast<QToolBar*>(list[i]);
+
+        if( tb != nullptr )
+        {
+            ret = tb;
+            break;
+        }
+    }
+
+    return ret;
+}
+
 MainWindow::~MainWindow()
 {
-    
+    QFont font = mainEditor.font();
+    bool isWrap = (mainEditor.lineWrapMode() == QPlainTextEdit::WidgetWidth);
+    bool tbVisible = (findMenuBarAction("Tool Bar")->isChecked() && findToolBarAction("Tool Bar")->isChecked());
+    bool sbVisible = (findMenuBarAction("Status Bar")->isChecked() && findToolBarAction("Status Bar")->isChecked());
+    AppConfig config(font, isWrap, tbVisible, sbVisible, this);
+
+    config.store();
 }

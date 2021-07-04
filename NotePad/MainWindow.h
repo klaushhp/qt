@@ -12,6 +12,8 @@
 #include <QSharedPointer>
 #include "FindDialog.h"
 #include "ReplaceDialog.h"
+#include "AboutDialog.h"
+#include "AppConfig.h"
 
 class MainWindow : public QMainWindow
 {
@@ -73,8 +75,16 @@ private slots:
     void onEditFind();
     void onEditReplace();
     void onEditDelete();
+    void onEditGoto();
+    void onFormatWrap();
+    void onFormatFont();
+    void onViewToolBar();
+    void onViewStatusBar();
+    void onHelpManual();
+    void onHelpAbout();
 public:
     static MainWindow* NewInstance();
+    QToolBar* toolBar();
     ~MainWindow();
 };
 

@@ -17,5 +17,6 @@
         <file>pic/wrap.png</file>
         <file>pic/status.png</file>
         <file>pic/tool.png</file>
+        <file>pic/dt.png</file>
     </qresource>
 </RCC>

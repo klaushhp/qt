@@ -15,10 +15,14 @@
 #include <QToolBar>
 #include <QDebug>
 #include <QPrintDialog>
+#include <QInputDialog>
+#include <QFontDialog>
 #include <QPrinter>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QStatusBar>
 #include <QMimeData>
+#include <QDesktopServices>
 
 void MainWindow::showErrorMessage(QString message)
 {
@@ -332,25 +336,15 @@ QAction* MainWindow::findMenuBarAction(QString text)
 
 QAction* MainWindow::findToolBarAction(QString text)
 {
-    QAction* ret = NULL;
-    const QObjectList& list = children();
+    QAction* ret = nullptr;
+    QList<QAction*> actions = toolBar()->actions();
 
-    for(int i=0; i<list.count(); i++)
+    for(int j=0; j<actions.count(); j++)
     {
-        QToolBar* toolBar = dynamic_cast<QToolBar*>(list[i]);
-
-        if( toolBar != nullptr )
+        if( actions[j]->toolTip().startsWith(text) )
         {
-            QList<QAction*> actions = toolBar->actions();
-
-            for(int j=0; j<actions.count(); j++)
-            {
-                if( actions[j]->toolTip().startsWith(text) )
-                {
-                    ret = actions[j];
-                    break;
-                }
-            }
+            ret = actions[j];
+            break;
         }
     }
 
@@ -413,9 +407,96 @@ void MainWindow::onEditReplace()
     m_pReplaceDlg->show();
 }
 
+void MainWindow::onEditGoto()
+{
+    bool ok = false;
+    int ln = QInputDialog::getInt(this, "Goto", "Line:", 1, 1, mainEditor.document()->lineCount(), 1, &ok, Qt::WindowCloseButtonHint | Qt::Drawer);
+
+    if( ok )
+    {
+        QString text = mainEditor.toPlainText();
+        QTextCursor c = mainEditor.textCursor();
+        int pos = 0;
+
+        for(int i=0; i<ln-1; i++)
+        {
+            pos = text.indexOf('\n', pos);
+            pos++;
+        }
+
+        c.setPosition(pos);
+
+        mainEditor.setTextCursor(c);
+    }
+}
+
+void MainWindow::onViewToolBar()
+{
+    QToolBar* tb = toolBar();
+    bool visible = tb->isVisible();
+
+    tb->setVisible(!visible);
+
+    findMenuBarAction("Tool Bar")->setChecked(!visible);
+    findToolBarAction("Tool Bar")->setChecked(!visible);
+}
+
+void MainWindow::onViewStatusBar()
+{
+    QStatusBar* sb  = statusBar();
+    bool visible = sb->isVisible();
+
+    sb->setVisible(!visible);
+
+    findMenuBarAction("Status Bar")->setChecked(!visible);
+    findToolBarAction("Status Bar")->setChecked(!visible);
+}
+
+void MainWindow::onFormatWrap()
+{
+    QPlainTextEdit::LineWrapMode mode = mainEditor.lineWrapMode();
+
+    if( mode == QPlainTextEdit::NoWrap )
+    {
+        mainEditor.setLineWrapMode(QPlainTextEdit::WidgetWidth);
+
+        findMenuBarAction("Auto Wrap")->setChecked(true);
+        findToolBarAction("Auto Wrap")->setChecked(true);
+    }
+    else
+    {
+        mainEditor.setLineWrapMode(QPlainTextEdit::NoWrap);
+
+        findMenuBarAction("Auto Wrap")->setChecked(false);
+        findToolBarAction("Auto Wrap")->setChecked(false);
+
+    }
+}
+
+void MainWindow::onFormatFont()
+{
+    bool ok = false;
+    QFont font = QFontDialog::getFont(&ok, mainEditor.font(), this);
+
+    if( ok )
+    {
+        mainEditor.setFont(font);
+    }
+}
+
 void MainWindow::onFileExit()
 {
     close();
+}
+
+void MainWindow::onHelpManual()
+{
+    QDesktopServices::openUrl(QUrl("http://www.taobao.com"));
+}
+
+void MainWindow::onHelpAbout()
+{
+    AboutDialog(this).exec();
 }
 
 

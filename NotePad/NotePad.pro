@@ -15,12 +15,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    AboutDialog.cpp \
+    AppConfig.cpp \
     FindDialog.cpp \
     MainWindowSlots.cpp \
     MainWindowUI.cpp \
     ReplaceDialog.cpp
 
 HEADERS  += MainWindow.h \
+    AboutDialog.h \
+    AppConfig.h \
     FindDialog.h \
     ReplaceDialog.h
 
