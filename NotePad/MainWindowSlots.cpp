@@ -167,6 +167,16 @@ void MainWindow::onFileOpen()
     }
 }
 
+void MainWindow::openFile(QString path)
+{
+    preEditorChange();
+
+    if( !m_isTextChanged )
+    {
+        openFileToEditor(path);
+    }
+}
+
 QString MainWindow::saveCurrentData(QString path)
 {
     QString ret = path;
@@ -239,6 +249,14 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
     if( !m_isTextChanged )
     {
+        QFont font = mainEditor.font();
+        bool isWrap = (mainEditor.lineWrapMode() == QPlainTextEdit::WidgetWidth);
+        bool tbVisible = toolBar()->isVisible();
+        bool sbVisible = statusBar()->isVisible();
+        AppConfig config(font, pos(), size(), isWrap, tbVisible, sbVisible, this);
+
+        config.store();
+
         QMainWindow::closeEvent(e);
     }
     else
